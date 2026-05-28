@@ -10,7 +10,7 @@ on:
       artifact_name:
         description: '制品包名称'
         required: true
-        default: 'ceph-base-v20.2.1-20260402'
+        default: 'test'
 
 jobs:
   pull-ceph:

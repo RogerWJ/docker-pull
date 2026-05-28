@@ -44,7 +44,7 @@ jobs:
           docker pull "$image" --platform linux/amd64 || echo "Failed to pull $image"
           
           # 生成文件名
-          img_name=$(echo "$image" | sed 's|/|_|g; s|:|_|g')
+          img_name=$(echo "$image" | sed -E 's/.*\/([^\/:]+):.*/\1/')
           tar_file="${img_name}.tar"
           xz_file="${img_name}.tar.xz"
           

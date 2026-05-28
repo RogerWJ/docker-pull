@@ -1,0 +1,71 @@
+name: Pull Ceph Docker Images
+
+on:
+  workflow_dispatch:
+    inputs:
+      ceph_version:
+        description: 'Ceph 版本 (例如: quincy, reef, squid)'
+        required: true
+        default: 'quincy'
+      artifact_name:
+        description: '制品包名称'
+        required: true
+        default: 'ceph-images-quincy'
+
+jobs:
+  pull-ceph:
+    runs-on: ubuntu-22.04
+    steps:
+    - name: Clean up Docker
+      run: |
+        docker system prune -a -f --volumes
+
+    - name: Pull and Package Ceph Images
+      id: pull_images
+      run: |
+        VERSION="${{ github.event.inputs.ceph_version }}"
+        ARTIFACT_NAME="${{ github.event.inputs.artifact_name }}"
+        
+        # Ceph 常用的镜像列表 (根据版本不同，镜像名可能略有差异，以官方为准)
+        # 注意：Ceph 镜像通常托管在 quay.io 或 docker.io
+        IMAGES=(
+          "quay.io/ceph/ceph:${VERSION}"
+          "quay.io/ceph/cephcsi/csi-cephfsplugin:${VERSION}"
+          "quay.io/ceph/cephcsi/csi-rbdplugin:${VERSION}"
+          "quay.io/ceph/cephcsi/csi-attacher:${VERSION}"
+          "quay.io/ceph/cephcsi/csi-provisioner:${VERSION}"
+          "quay.io/ceph/cephcsi/csi-snapshotter:${VERSION}"
+          "quay.io/ceph/cephcsi/csi-resizer:${VERSION}"
+        )
+
+        mkdir -p ceph-images
+        cd ceph-images
+        
+        for image in "${IMAGES[@]}"; do
+          echo "Pulling: $image"
+          docker pull "$image" --platform linux/amd64 || echo "Failed to pull $image"
+          
+          # 生成文件名
+          img_name=$(echo "$image" | sed 's|/|_|g; s|:|_|g')
+          tar_file="${img_name}.tar"
+          xz_file="${img_name}.tar.xz"
+          
+          docker save "$image" -o "$tar_file"
+          xz -v -T0 -8 "$tar_file"
+          echo "Saved: $xz_file"
+        done
+        
+        cd ..
+        # 打包成 zip
+        zip -r "${ARTIFACT_NAME}.zip" ceph-images/
+        
+        # 清理
+        rm -rf ceph-images
+        docker system prune -a -f --volumes
+
+    - name: Upload Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{ github.event.inputs.artifact_name }}
+        path: ${{ github.event.inputs.artifact_name }}.zip
+        retention-days: 14

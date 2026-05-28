@@ -30,12 +30,6 @@ jobs:
         # 注意：Ceph 镜像通常托管在 quay.io 或 docker.io
         IMAGES=(
           "quay.io/ceph/ceph:${VERSION}"
-          "quay.io/ceph/cephcsi/csi-cephfsplugin:${VERSION}"
-          "quay.io/ceph/cephcsi/csi-rbdplugin:${VERSION}"
-          "quay.io/ceph/cephcsi/csi-attacher:${VERSION}"
-          "quay.io/ceph/cephcsi/csi-provisioner:${VERSION}"
-          "quay.io/ceph/cephcsi/csi-snapshotter:${VERSION}"
-          "quay.io/ceph/cephcsi/csi-resizer:${VERSION}"
         )
 
         mkdir -p ceph-images

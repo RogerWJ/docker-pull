@@ -6,11 +6,11 @@ on:
       ceph_version:
         description: 'Ceph 版本 (例如: quincy, reef, squid)'
         required: true
-        default: 'quincy'
+        default: 'latest'
       artifact_name:
         description: '制品包名称'
         required: true
-        default: 'ceph-images-quincy'
+        default: 'ceph-images-latest'
 
 jobs:
   pull-ceph:

@@ -30,6 +30,10 @@ jobs:
         # 注意：Ceph 镜像通常托管在 quay.io 或 docker.io
         IMAGES=(
           "quay.io/ceph/ceph:${VERSION}"
+          "quay.io/ceph/grafana:9.5.9"
+          "quay.io/prometheus/prometheus:latest"
+          "quay.io/prometheus/alertmanager:latest"
+          "quay.io/prometheus/node-exporter:latest"
         )
 
         mkdir -p ceph-images
@@ -51,7 +55,7 @@ jobs:
         
         cd ..
         # 打包成 zip
-        zip -r "${ARTIFACT_NAME}.zip" ceph-images/
+        tar -cJf "${ARTIFACT_NAME}.tar.xz" ceph-images/
         
         # 清理
         rm -rf ceph-images
